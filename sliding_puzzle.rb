@@ -1,9 +1,3 @@
-#
-# Algoritmos Geneticos
-#
-# Algoritmo do torneio
-#
-
 
 TAMANHO_CROMOSSOMO = 100
 TAMANHO_POPULACAO = 100
@@ -11,8 +5,8 @@ NRO_SORTEIO = 3
 PROB_MUTACAO = 0.1
 
 #
-# Classe para representar um individuo
-# da populacao. Neste caso, um cromossomo.
+# Um cromossomo contem um sequencia de passos
+#
 #
 class Cromossomo
   # Permissao de leitura para o atributo fitness
