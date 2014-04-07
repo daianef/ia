@@ -1,12 +1,27 @@
+#####################################################################
+# 
+# INTELIGENCIA ARTIFICIAL APLICADA
+#
+# TRABALHO 1: Resolvendo o Sliding Puzzle com algoritmos geneticos
+#
+# Alunas: Daiane Fraga, Marcia Federizzi
+#
+# 2014/1
+#
+#####################################################################
 
-TAMANHO_CROMOSSOMO = 100
+### Constantes ###
+TAMANHO_CROMOSSOMO = 8
 TAMANHO_POPULACAO = 100
+NUMERO_DE_GERACOES = 100
 NRO_SORTEIO = 3
 PROB_MUTACAO = 0.1
 
+### Classes ###
+
 #
-# Um cromossomo contem um sequencia de passos
-#
+# Um cromossomo contem um sequencia de passos do espaco vazio.
+# Assim, cada gene e' um movimento.
 #
 class Cromossomo
   # Permissao de leitura para o atributo fitness
@@ -14,11 +29,13 @@ class Cromossomo
 
   #
   # Construtor da classe.
-  # Inicia com codigo vazio e fitness
-  # nao calculado (-1).
+  # Inicia o cromossomo com atributos de valor generico.
+  #
+  # @genes: codigo genetico (array)
+  # @fitness: valor resultante da funcao de fitness (fixnum)
   #
   def initialize
-    @codigo = []
+    @genes = []
     @fitness = -1
   end
 
@@ -27,7 +44,7 @@ class Cromossomo
   #
   def to_s
     s = ""
-    @codigo.each do |c|
+    @genes.each do |c|
       s += "#{c} "
     end
 #    s += "\n"
@@ -36,23 +53,33 @@ class Cromossomo
   end
 
   #
-  # Gera um novo codigo, usado quando nao existe
-  # nenhuma populacao (nao ha pais). Codigo e' aleatorio.
+  # Gera genes aleatorios. Corresponde ao nascimento do cromossomo na 
+  # primeira populacao. 
   #
   def gerar_novo
-    @codigo = []
-    1.upto TAMANHO_CROMOSSOMO do |i|
-      @codigo[i-1] = rand(2)
+    @genes = []
+    
+	1.upto TAMANHO_CROMOSSOMO do |i|
+	  passo = rand(4)
+	
+	# Considerar deficiencias?
+    #  while !passo_valido?(passo)
+    #    passo = rand(4)
+    #  end 
+	  
+	  @genes[i-1] = rand(2)
     end
+	
     calcular_fitness()
   end
 
   #
-  # Codigo e' resultado de uma combinacao de codigos, isto e',
-  # existe um cruzamento de codigos.
+  # Une dois codigos geneticos previamente fornecidos, atualizando o
+  # valor do fitness.
+  # Quem chama o metodo e' que define o criterio de cruzamento.
   #
-  def crossover(codigo1, codigo2)
-    @codigo = codigo1 + codigo2
+  def crossover(genes1, genes2)
+    @genes = genes1 + genes2
     calcular_fitness()
   end
 
@@ -61,29 +88,29 @@ class Cromossomo
   # aleatoria se existe probabilidade de mutacao.
   #
   def mutacao
-    raise "O cromossomo deve ter um codigo." if @codigo.empty?
+    raise "O cromossomo deve possuir genes." if @genes.empty?
 
-    prob = probabilidade()
-    if probabilidade() <= PROB_MUTACAO
+    if deve_mutar?
       pos = sortear_posicao()
-      @codigo[pos] = 1-@codigo[pos]
+      @genes[pos] = 1 - @genes[pos]
     end
   end
 
   #
-  # Retorna primeiros 4 bits do codigo.
+  # Retorna primeira metade dos genes.
   #
   def heranca_1
-    @codigo[0..(TAMANHO_CROMOSSOMO/2)-1]
+    @genes[0..(TAMANHO_CROMOSSOMO/2)-1]
   end
 
   #
-  # Retorna ultimos 4 bits do codigo.
+  # Retorna segunda metade dos genes.
   #
   def heranca_2
-    @codigo[TAMANHO_CROMOSSOMO/2..TAMANHO_CROMOSSOMO-1]
+    @genes[TAMANHO_CROMOSSOMO/2..TAMANHO_CROMOSSOMO-1]
   end
 
+  ############ Metodos privados ############
   private
 
   #
@@ -92,93 +119,95 @@ class Cromossomo
   #
   def calcular_fitness
     @fitness = 0
-    @codigo.each { |c| @fitness += c }
+    # TODO
   end
 
   #
-  # Sorteia uma posicao do codigo.
+  # Sorteia uma posicao entre o codigo genetico.
   #
   def sortear_posicao
     rand(TAMANHO_CROMOSSOMO-1)
   end
 
   #
-  # Calcula a probabilidade de mutacao.
+  # Calcula a probabilidade de mutacao e
+  # verifica se a mutacao e' desejada.
   #
-  def probabilidade
-    (rand(1000)+1).to_f/1000.to_f
+  def deve_mutar?
+	num = (rand(1000)+1).to_f/1000.to_f
+	num <= PROB_MUTACAO  
   end
 end
 
 
+
 #
-# Classe para representar uma populacao de individuos. Neste caso,
-# uma populacao de cromossomos.
+# Classe para representar uma populacao de cromossomos.
 #
 class Populacao
   #
   # Construtor da classe. Inicia com populacao vazia.
   #
   def initialize
-    @individuos = []
+    @cromossomos = []
   end
 
   #
-  # Exibicao do objeto como string e' o maior valor entre
-  # as funcoes de fitness dos individuos.
+  # Exibicao do objeto como string.
   #
   def to_s
-    str = "#{maior_fitness(@individuos).fitness} "
-  #  @individuos.each do |i|
+    str = "#{maior_fitness(@cromossomos).fitness} "
+  #  @cromossomos.each do |i|
   #    str += i.to_s + "\n"
   #  end
   #  str + "\n"
   end
 
   #
-  # Mata populacao (reseta variavel de individuos).
+  # Acrescenta a populacao um novo cromossomo.
   #
-  def reset
-    @individuos = []
+  def adicionar_novo_cromossomo(cromo)
+    @cromossomos << cromo
   end
 
   #
-  # Alimenta populacao com um novo individuo.
-  #
-  def alimentar_populacao(individuo)
-    @individuos << individuo
-  end
-
-  #
-  # Escolher pares de pais aptos para reproducao
-  # (numero de pais e' igual a metade do numero de
-  # individuos dividido por 2).
+  # Escolher pares de pais aptos para reproducao.
+  # Numero de pais e' igual a metade do numero de
+  # cromossomos.
   #
   def escolher_pais
     pais = []
-    1.upto @individuos.size/2 do |i|
+    1.upto @cromossomos.size/2 do |i|
       pais[i-1] = []
-      pais[i-1][0] = maior_fitness(sortear())
-      pais[i-1][1] = maior_fitness(sortear())
+      pais[i-1][0] = maior_fitness(sortear_cromossomos())
+      pais[i-1][1] = maior_fitness(sortear_cromossomos())
     end
 
     pais
   end
 
   #
-  # Sorteia 3 individuos.
+  # Retorna o cromossomo de maior fitness dentro da populacao.
   #
-  def sortear
-    ids = []
-    1.upto NRO_SORTEIO do |i|
-      ids[i-1] = rand(@individuos.size)
-    end
-
-    [@individuos[ids[0]], @individuos[ids[1]], @individuos[ids[2]]]
+  def maior_fitness_absoluto
+    maior_fitness(@cromossomos)
   end
 
   #
-  # Retorna o cromossomo de maior fitness.
+  # Aplica o elitismo na populacao. Recebe o melhor pai (maior fitness) da 
+  # populacao passada e o coloca no lugar do cromossomo de menor fitness da
+  # populacao atual.
+  #
+  def elitismo(melhor_pai)
+    index = @cromossomos.index(menor_fitness_absoluto)
+    @cromossomos[index] = melhor_pai
+  end
+
+  ############ Metodos privados ############
+  private
+
+  #
+  # Retorna o cromossomo de maior fitness dentro da lista fornecida.
   #
   def maior_fitness(elementos)
     maior = elementos.first
@@ -189,20 +218,24 @@ class Populacao
     maior
   end
 
-  def maior_fitness_absoluto
-    maior_fitness(@individuos)
+  #
+  # Sorteia 3 cromossomos.
+  #
+  def sortear_cromossomos
+    ids = []
+    1.upto NRO_SORTEIO do |i|
+      ids[i-1] = rand(@cromossomos.size)
+    end
+
+    [@cromossomos[ids[0]], @cromossomos[ids[1]], @cromossomos[ids[2]]]
   end
-
-  def elitismo(melhor_pai)
-    index = @individuos.index(menor_fitness_absoluto)
-    @individuos[index] = melhor_pai
-  end
-
-  private
-
+  
+  #
+  # Retorna o cromossomo de menor fitness dentro da populacao.
+  #
   def menor_fitness_absoluto
-    menor = @individuos.first
-    @individuos.each do |e|
+    menor = @cromossomos.first
+    @cromossomos.each do |e|
       menor = e if e.fitness < menor.fitness
     end
 
@@ -210,27 +243,73 @@ class Populacao
   end
 end
 
-#################################################################
 
-# Criar nova populacao
+class Peca
+  def initialize
+    @valor =
+    @posicao_atual = 
+    @posicao_correta =
+  end
+  
+  def <=>
+  end
+  
+  def ==
+  end
+  
+  def to_s
+  end
+end
+
+#
+# Classe que representa um jogo Sliding Puzzle NxN.
+#
+class SlidingPuzzle
+  def initialize()
+    @linhas = [] 
+    @solucao = []
+  end
+  
+  
+
+end
+
+
+
+############## BUSCA PELA SOLUCAO DO SLIDING PUZZLE ################
+
+# Configuracao do jogo
+# TODO: tornar parametrizavel e de qualquer tamanho
+jogo = [ 
+  [3, 2, 1],
+  [6, 5, 4],
+  [7, 8, nil]
+]
+
+# Criar uma nova populacao
 populacao_atual = Populacao.new
+# Gerar cromossomos
 1.upto TAMANHO_POPULACAO do |i|
   individuo = Cromossomo.new
   individuo.gerar_novo()
-  populacao_atual.alimentar_populacao(individuo)
+  populacao_atual.adicionar_novo_cromossomo(individuo)
 end
 
-srand(Time.new.to_i.abs)
+# Seta a semente do gerador de numeros aleatorios.
+# Se omitido o parametro, sera' usada uma combinacao da
+# data, ID do processo e numero de sequencia.
+srand()
 
-# Ciclo de 50 geracoes
-1.upto 100 do |i|
+##### GERACAO DE POPULACOES #####
+1.upto NUMERO_DE_GERACOES do |i|
   # Imprime maior fitness da populacao atual
   puts "#{i} #{populacao_atual.to_s}"
 
   # Guarda populacao passada
   populacao_passada = populacao_atual.dup
-  # Limpa geracao atual para guardar novos filhos
-  populacao_atual.reset()
+  # Inicia nova populacao que sera' preenchida com cromossomos
+  # filhos da populacao passada
+  populacao_atual = Populacao.new
 
   # Escolher pais e gerar filhos
   pais = populacao_passada.escolher_pais()
@@ -242,7 +321,7 @@ srand(Time.new.to_i.abs)
     # Testa e realiza a mutacao, se for o caso
     individuo.mutacao()
     # Alimenta a populacao
-    populacao_atual.alimentar_populacao(individuo)
+    populacao_atual.adicionar_novo_cromossomo(individuo)
 
     # Novo cromossomo
     individuo = Cromossomo.new
@@ -251,7 +330,7 @@ srand(Time.new.to_i.abs)
     # Testa e realiza a mutacao, se for o caso
     individuo.mutacao()
     # Alimenta a populacao
-    populacao_atual.alimentar_populacao(individuo)
+    populacao_atual.adicionar_novo_cromossomo(individuo)
   end
 
   melhor_pai = populacao_passada.maior_fitness_absoluto()
