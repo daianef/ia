@@ -267,7 +267,7 @@ end
 class SlidingPuzzle
   def initialize()
     @linhas = [] 
-    @solucao = []
+    @pecas_ordenadas = []
   end
   
   
