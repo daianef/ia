@@ -1,3 +1,10 @@
+$: << File.expand_path(File.dirname(__FILE__) + '/lib')
+
+require 'parser_cli'
+require 'puzzle'
+require 'cromossomo'
+require 'populacao'
+
 #####################################################################
 #
 # INTELIGENCIA ARTIFICIAL APLICADA
@@ -10,43 +17,33 @@
 #
 #####################################################################
 
-require 'puzzle'
-require 'cromossomo'
-require 'populacao'
+cli = ParserCLI.new
 
+sp = SlidingPuzzle.new(cli.arquivo)
 
-### Constantes ###
-TAMANHO_CROMOSSOMO = 8
-TAMANHO_POPULACAO = 1000
-NUMERO_DE_GERACOES = 4000
-NRO_SORTEIO = 3
-PROB_MUTACAO = 0.1
-
-############## BUSCA PELA SOLUCAO DO SLIDING PUZZLE ################
-
-srand()
-
-sp = SlidingPuzzle.new("/media/ARQUIVOS/ENGENHARIA/IA/trabalho/teste.txt")
+puts "#"*10 + " JOGO DO USUARIO " + "#"*10
+sp.jogo.each do |linha|
+  puts linha.inspect
+end
+puts "#"*37 + "\n\n"
 
 # Seta a semente do gerador de numeros aleatorios.
 # Se omitido o parametro, sera' usada uma combinacao da
 # data, ID do processo e numero de sequencia.
-puts "$$$$$$$$$$$$$$$$$$$$"
-puts sp.jogo.inspect
-puts "$$$$$$$$$$$$$$$$$$$$"
+srand()
 
 # Criar uma nova populacao
-populacao_atual = Populacao.new
+populacao_atual = Populacao.new(cli.numero_de_sorteios)
 # Gerar cromossomos
-1.upto TAMANHO_POPULACAO do |i|
-  individuo = Cromossomo.new(TAMANHO_CROMOSSOMO, sp.jogo, sp.estado_esperado)
-  individuo.alterar_probabilidade_de_mutacao(PROB_MUTACAO)
+1.upto cli.tamanho_da_populacao do |i|
+  individuo = Cromossomo.new(cli.tamanho_do_cromossomo, sp.jogo, sp.estado_esperado)
+  individuo.alterar_probabilidade_de_mutacao(cli.probabilidade_de_mutacao)
   individuo.gerar_novo()
   populacao_atual.adicionar_novo_cromossomo(individuo)
 end
 
 ##### GERACAO DE POPULACOES #####
-1.upto NUMERO_DE_GERACOES do |i|
+1.upto cli.numero_de_geracoes do |i|
   # Imprime maior fitness da populacao atual
   puts "#{i} #{populacao_atual.to_s}"
 
@@ -54,13 +51,13 @@ end
   populacao_passada = populacao_atual.dup
   # Inicia nova populacao que sera' preenchida com cromossomos
   # filhos da populacao passada
-  populacao_atual = Populacao.new
+  populacao_atual = Populacao.new(cli.numero_de_sorteios)
   # Escolher pais e gerar filhos
   pais = populacao_passada.escolher_pais()
   pais.each do |pai1, pai2|
     # Novo cromossomo
-    individuo = Cromossomo.new(TAMANHO_CROMOSSOMO, sp.jogo, sp.estado_esperado)
-    individuo.alterar_probabilidade_de_mutacao(PROB_MUTACAO)
+    individuo = Cromossomo.new(cli.tamanho_do_cromossomo, sp.jogo, sp.estado_esperado)
+    individuo.alterar_probabilidade_de_mutacao(cli.probabilidade_de_mutacao)
     # Cruzamento entre pais
     individuo.crossover(pai1.heranca_1.reverse, pai2.heranca_2.reverse)
     # Testa e realiza a mutacao, se for o caso
@@ -69,8 +66,8 @@ end
     populacao_atual.adicionar_novo_cromossomo(individuo)
 
     # Novo cromossomo
-    individuo = Cromossomo.new(TAMANHO_CROMOSSOMO, sp.jogo, sp.estado_esperado)
-    individuo.alterar_probabilidade_de_mutacao(PROB_MUTACAO)
+    individuo = Cromossomo.new(cli.tamanho_do_cromossomo, sp.jogo, sp.estado_esperado)
+    individuo.alterar_probabilidade_de_mutacao(cli.probabilidade_de_mutacao)
     # Cruzamento entre pais (trocando herancas)
     individuo.crossover(pai2.heranca_1.reverse, pai1.heranca_2.reverse)
     # Testa e realiza a mutacao, se for o caso
@@ -82,5 +79,3 @@ end
   melhor_pai = populacao_passada.maior_fitness_absoluto()
   populacao_atual.elitismo(melhor_pai)
 end
-
-#################################################################
