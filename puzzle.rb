@@ -8,6 +8,8 @@
 
 
 class Peca
+  attr_accessor :id
+
   def initialize(id, linha, coluna)
     @id = id.to_i
     @coord = {:linha => linha, :coluna => coluna}
@@ -19,6 +21,10 @@ class Peca
 
   def coluna
     @coord[:coluna]
+  end
+
+  def coord
+    "#{@coord[:linha]},#{@coord[:coluna]}"
   end
 
   def <=>(outro)
@@ -43,6 +49,8 @@ end
 # Mantem jogo do usuario e a matriz solucao.
 #
 class SlidingPuzzle
+  attr_reader :jogo, :estado_esperado
+
   def initialize(caminho_arquivo)
     @arquivo = caminho_arquivo
     @jogo = ler_jogo_do_usuario()
@@ -98,11 +106,14 @@ class SlidingPuzzle
       end
     end
 
-    solucao[@n*@n-1] = Peca.new(0, @n-1, @n-1)
+    solucao_tmp = [solucao.last] + solucao
+    solucao_tmp.pop
 
-    solucao
+    solucao_tmp.first.id = 0
+
+    solucao_tmp
   end
 end
 
-sp = SlidingPuzzle.new("/media/ARQUIVOS/ENGENHARIA/IA/trabalho/teste.txt")
-puts sp
+
+

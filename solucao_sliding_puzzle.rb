@@ -1,5 +1,5 @@
 #####################################################################
-# 
+#
 # INTELIGENCIA ARTIFICIAL APLICADA
 #
 # TRABALHO 1: Resolvendo o Sliding Puzzle com algoritmos geneticos
@@ -10,28 +10,40 @@
 #
 #####################################################################
 
+require 'puzzle'
+require 'cromossomo'
+require 'populacao'
+
+
 ### Constantes ###
 TAMANHO_CROMOSSOMO = 8
-TAMANHO_POPULACAO = 100
-NUMERO_DE_GERACOES = 100
+TAMANHO_POPULACAO = 1000
+NUMERO_DE_GERACOES = 4000
 NRO_SORTEIO = 3
 PROB_MUTACAO = 0.1
 
 ############## BUSCA PELA SOLUCAO DO SLIDING PUZZLE ################
 
-# Criar uma nova populacao
-populacao_atual = Populacao.new
-# Gerar cromossomos
-1.upto TAMANHO_POPULACAO do |i|
-  individuo = Cromossomo.new
-  individuo.gerar_novo()
-  populacao_atual.adicionar_novo_cromossomo(individuo)
-end
+srand()
+
+sp = SlidingPuzzle.new("/media/ARQUIVOS/ENGENHARIA/IA/trabalho/teste.txt")
 
 # Seta a semente do gerador de numeros aleatorios.
 # Se omitido o parametro, sera' usada uma combinacao da
 # data, ID do processo e numero de sequencia.
-srand()
+puts "$$$$$$$$$$$$$$$$$$$$"
+puts sp.jogo.inspect
+puts "$$$$$$$$$$$$$$$$$$$$"
+
+# Criar uma nova populacao
+populacao_atual = Populacao.new
+# Gerar cromossomos
+1.upto TAMANHO_POPULACAO do |i|
+  individuo = Cromossomo.new(TAMANHO_CROMOSSOMO, sp.jogo, sp.estado_esperado)
+  individuo.alterar_probabilidade_de_mutacao(PROB_MUTACAO)
+  individuo.gerar_novo()
+  populacao_atual.adicionar_novo_cromossomo(individuo)
+end
 
 ##### GERACAO DE POPULACOES #####
 1.upto NUMERO_DE_GERACOES do |i|
@@ -43,23 +55,24 @@ srand()
   # Inicia nova populacao que sera' preenchida com cromossomos
   # filhos da populacao passada
   populacao_atual = Populacao.new
-
   # Escolher pais e gerar filhos
   pais = populacao_passada.escolher_pais()
   pais.each do |pai1, pai2|
     # Novo cromossomo
-    individuo = Cromossomo.new
+    individuo = Cromossomo.new(TAMANHO_CROMOSSOMO, sp.jogo, sp.estado_esperado)
+    individuo.alterar_probabilidade_de_mutacao(PROB_MUTACAO)
     # Cruzamento entre pais
-    individuo.crossover(pai1.heranca_1, pai2.heranca_2)
+    individuo.crossover(pai1.heranca_1.reverse, pai2.heranca_2.reverse)
     # Testa e realiza a mutacao, se for o caso
     individuo.mutacao()
     # Alimenta a populacao
     populacao_atual.adicionar_novo_cromossomo(individuo)
 
     # Novo cromossomo
-    individuo = Cromossomo.new
+    individuo = Cromossomo.new(TAMANHO_CROMOSSOMO, sp.jogo, sp.estado_esperado)
+    individuo.alterar_probabilidade_de_mutacao(PROB_MUTACAO)
     # Cruzamento entre pais (trocando herancas)
-    individuo.crossover(pai2.heranca_1, pai1.heranca_2)
+    individuo.crossover(pai2.heranca_1.reverse, pai1.heranca_2.reverse)
     # Testa e realiza a mutacao, se for o caso
     individuo.mutacao()
     # Alimenta a populacao

@@ -2,9 +2,10 @@
 # Um cromossomo contem uma sequencia de passos da peca guia (espaco vazio).
 # Assim, cada gene e' um movimento.
 #
+
 class Cromossomo
   # Permissao de leitura para o atributo fitness
-  attr_reader :fitness
+  attr_reader :fitness, :resultante, :genes
 
   #
   # Construtor da classe.
@@ -12,11 +13,11 @@ class Cromossomo
   #
   #
   def initialize(tamanho, atual, final)
-    raise "Parametro atual deve ser Array." unless atual.is_a? Ar
+    raise "Parametro atual deve ser Array." unless atual.is_a? Array
     raise "Parametro final deve ser Array." unless final.is_a? Array
 
     @tamanho = tamanho
-    @jogo_usuario = atual
+    @jogo_usuario = atual.dup
     @estado_esperado = final
     @genes = []
     @fitness = -1
@@ -74,6 +75,11 @@ class Cromossomo
     if deve_mutar?
       pos = sortear_posicao()
       @genes[pos] = 3 - @genes[pos]
+      pos = sortear_posicao()
+      @genes[pos] = 3 - @genes[pos]
+      pos = sortear_posicao()
+      @genes[pos] = 3 - @genes[pos]
+      calcular_fitness()
     end
   end
 
@@ -81,14 +87,14 @@ class Cromossomo
   # Retorna primeira metade dos genes.
   #
   def heranca_1
-    @genes[0..(@tamanho/2)-1]
+    @genes[0..((@tamanho/2)-2)]
   end
 
   #
   # Retorna segunda metade dos genes.
   #
   def heranca_2
-    @genes[@tamanho/2..@tamanho-1]
+    @genes[((@tamanho/2)-2)+1..(@tamanho-1)]
   end
 
   def alterar_probabilidade_de_mutacao(valor)
@@ -96,20 +102,20 @@ class Cromossomo
   end
 
   ############ Metodos privados ############
-  private
+  #private
 
   #
   # Calcula valor numerico da funcao fitness
   # do cromossomo.
   #
   def calcular_fitness
-    resultado = matriz_resultado()
+    @resultante = matriz_resultado()
     @fitness = 0
 
-    resultado.each_index do |linha|
-      linha.each_index do |coluna|
-        esperado = @estado_esperado.index(resultado[linha][coluna])
-        if esperado.linha == linha and esperado.coluna == coluna
+    @resultante.each_index do |linha|
+      @resultante[linha].each_index do |coluna|
+        index = @resultante[linha][coluna]
+        if "#{linha},#{coluna}" == @estado_esperado[index].coord()
           @fitness += 1
         end
       end
@@ -120,7 +126,7 @@ class Cromossomo
   # Sorteia uma posicao entre o codigo genetico.
   #
   def sortear_posicao
-    rand(@tamanho-1)
+    rand(@tamanho)
   end
 
   #
@@ -134,7 +140,7 @@ class Cromossomo
 
   def matriz_resultado
     guia = posicao_da_peca_guia()
-    resultado = @jogo_usuario.dup
+    resultado = Marshal.load(Marshal.dump(@jogo_usuario))
 
     @genes.each do |movimento|
       case movimento
@@ -142,24 +148,28 @@ class Cromossomo
           if guia[:coluna] != 0
             resultado[guia[:linha]][guia[:coluna]] = resultado[guia[:linha]][guia[:coluna]-1]
             resultado[guia[:linha]][guia[:coluna]-1] = 0
+            guia = {:linha => guia[:linha], :coluna => guia[:coluna]-1}
           end
 
         when 1 # cima
           if guia[:linha] != 0
             resultado[guia[:linha]][guia[:coluna]] = resultado[guia[:linha]-1][guia[:coluna]]
             resultado[guia[:linha]-1][guia[:coluna]] = 0
+            guia = {:linha => guia[:linha]-1, :coluna => guia[:coluna]}
           end
 
         when 2 # baixo
           if guia[:linha] != resultado.size-1
             resultado[guia[:linha]][guia[:coluna]] = resultado[guia[:linha]+1][guia[:coluna]]
             resultado[guia[:linha]+1][guia[:coluna]] = 0
+            guia = {:linha => guia[:linha]+1, :coluna => guia[:coluna]}
           end
 
         when 3 # direita
           if guia[:coluna] != resultado.first.size-1
             resultado[guia[:linha]][guia[:coluna]] = resultado[guia[:linha]][guia[:coluna]+1]
             resultado[guia[:linha]][guia[:coluna]+1] = 0
+            guia = {:linha => guia[:linha], :coluna => guia[:coluna]+1}
           end
       end
     end

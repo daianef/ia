@@ -13,11 +13,24 @@ class Populacao
   # Exibicao do objeto como string.
   #
   def to_s
-    str = "#{maior_fitness(@cromossomos).fitness} "
-  #  @cromossomos.each do |i|
-  #    str += i.to_s + "\n"
-  #  end
-  #  str + "\n"
+=begin    str = "\n\n"
+    @cromossomos.each do |cromo|
+      str += "--\n"
+      str += cromo.object_id.to_s + "\n"
+      str += cromo.matriz_resultado.inspect + "\n"
+      str += cromo.fitness.to_s + "\n"
+    end
+
+    str += "\n\nMAIOR FITNESS\n"
+    cromo1 = maior_fitness_absoluto()
+    str += cromo1.object_id.to_s + "\n"
+    str += "#{cromo1.matriz_resultado.inspect}\n"
+    str += "#{cromo1.fitness} \n"
+=end
+
+    cromo = maior_fitness_absoluto()
+
+    "#{cromo.fitness} #{cromo.resultante.inspect} #{cromo.genes.inspect}"
   end
 
   #
@@ -51,7 +64,7 @@ class Populacao
   end
 
   #
-  # Aplica o elitismo na populacao. Recebe o melhor pai (maior fitness) da 
+  # Aplica o elitismo na populacao. Recebe o melhor pai (maior fitness) da
   # populacao passada e o coloca no lugar do cromossomo de menor fitness da
   # populacao atual.
   #
@@ -86,7 +99,7 @@ class Populacao
 
     [@cromossomos[ids[0]], @cromossomos[ids[1]], @cromossomos[ids[2]]]
   end
-  
+
   #
   # Retorna o cromossomo de menor fitness dentro da populacao.
   #
