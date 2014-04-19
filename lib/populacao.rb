@@ -3,7 +3,8 @@
 #
 class Populacao
   #
-  # Construtor da classe. Inicia com populacao vazia.
+  # Construtor da classe. Inicia com populacao vazia e
+  #  com numero de sorteios para escolha dos pais.
   #
   def initialize(numero_de_sorteios=3)
     @numero_de_sorteios = numero_de_sorteios
@@ -43,8 +44,7 @@ class Populacao
 
   #
   # Escolher pares de pais aptos para reproducao.
-  # Numero de pais e' igual a metade do numero de
-  # cromossomos.
+  # Numero de pais e' igual a metade do numero de cromossomos.
   #
   def escolher_pais
     pais = []
@@ -66,8 +66,8 @@ class Populacao
 
   #
   # Aplica o elitismo na populacao. Recebe o melhor pai (maior fitness) da
-  # populacao passada e o coloca no lugar do cromossomo de menor fitness da
-  # populacao atual.
+  #  populacao passada e o coloca no lugar do cromossomo de menor fitness da
+  #  populacao atual.
   #
   def elitismo(melhor_pai)
     index = @cromossomos.index(menor_fitness_absoluto)
@@ -90,7 +90,7 @@ class Populacao
   end
 
   #
-  # Sorteia 3 cromossomos.
+  # Sorteia n cromossomos.
   #
   def sortear_cromossomos
     ids = []
