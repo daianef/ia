@@ -14,11 +14,12 @@ class Cromossomo
   #
   #
   def initialize(tamanho, atual, final)
+    raise "Tamanho deve ser igual ou maior que 4." if tamanho.to_i < 4
     raise "Parametro atual deve ser Array." unless atual.is_a? Array
     raise "Parametro final deve ser Array." unless final.is_a? Array
 
     # Numero de genes
-    @tamanho = tamanho
+    @tamanho = tamanho.to_i
     # Jogo fornecido pelo usuario
     @jogo_usuario = atual
     # Estado final esperado para as pecas
@@ -54,56 +55,47 @@ class Cromossomo
   #
   def gerar_novo
     @genes = []
-
-    invalido = true
-    guia = posicao_da_peca_guia()
-    resultado = Marshal.load(Marshal.dump(@jogo_usuario))
-
     1.upto @tamanho do |i|
-      while invalido
-        gene = rand(4)
-
-        case gene
-          when 0 # esquerda
-            if guia[:coluna] != 0
-              invalido = false
-              guia[:coluna] = guia[:coluna]-1
-            end
-
-          when 1 # cima
-            if guia[:linha] != 0
-              invalido = false
-              guia[:linha] = guia[:linha]-1
-            end
-
-          when 2 # baixo
-            if guia[:linha] != resultado.size-1
-              invalido = false
-              guia[:linha] = guia[:linha]+1
-            end
-
-          when 3 # direita
-            if guia[:coluna] != resultado.first.size-1
-              invalido = false
-              guia[:coluna] = guia[:coluna]+1
-            end
-        end
-      end
-
-      invalido = true
-      @genes << gene
+      @genes << rand(4)
     end
 
     calcular_fitness()
   end
 
   #
-  # Une dois codigos geneticos previamente fornecidos, atualizando o
-  #  valor do fitness.
-  # Quem chama o metodo e' que define o criterio de cruzamento.
+  # Se numero de genes eh divisivel por 4, realiza um crossover que usa
+  #  uma especie de embaralhamento a partir de 4 partes:
   #
-  def crossover(genes1, genes2)
-    @genes = genes1 + genes2
+  #     PAI 1
+  # 1 2 3 0 1 2 3 0
+  #     --- ---
+  # parte_1 = [1, 2]
+  # parte_2 = [3, 0]
+  #
+  #     PAI 2
+  # 0 2 3 1 0 2 3 1
+  # ---         ---
+  # parte_3 = [3, 1]
+  # parte_4 = [0, 2]
+  #
+  # Resultado: 1 2 3 0 3 1 0 2
+  #
+  # --
+  #
+  # Se nao, realiza cruzamento simples.
+  #
+  def crossover(pai1, pai2)
+    if @tamanho%4 == 0
+      parte_1 = pai1.genes[(@tamanho/2)..(@tamanho/2 + @tamanho/4 - 1)]
+      parte_2 = pai1.genes[(@tamanho/2 - @tamanho/4)..(@tamanho/2 - 1)]
+      parte_3 = pai2.genes[(@tamanho - @tamanho/4)..(@tamanho - 1)]
+      parte_4 = pai2.genes[0..(@tamanho/4 - 1)]
+
+      @genes = parte_1 + parte_2 + parte_3 + parte_4
+    else
+      @genes = pai1.genes[0..((@tamanho/2)-1)] + pai2.genes[(@tamanho/2)..(@tamanho-1)]
+    end
+
     calcular_fitness()
   end
 
@@ -120,26 +112,8 @@ class Cromossomo
     if deve_mutar?
       pos = sortear_posicao()
       @genes[pos] = 3 - @genes[pos]
-      pos = sortear_posicao()
-      @genes[pos] = 3 - @genes[pos]
       calcular_fitness()
     end
-  end
-
-  #
-  # Retorna primeira metade dos genes.
-  # Permite usa-lo para cruzamento simples.
-  #
-  def heranca_1
-    @genes[0..((@tamanho/2)-2)]
-  end
-
-  #
-  # Retorna segunda metade dos genes.
-  # Permite usa-lo para cruzamento simples.
-  #
-  def heranca_2
-    @genes[((@tamanho/2)-2)+1..(@tamanho-1)]
   end
 
   #
@@ -158,7 +132,7 @@ class Cromossomo
   #  do cromossomo.
   #
   def calcular_fitness
-    @resultante = matriz_resultante()
+    @resultante, numero_de_inversoes = matriz_resultante()
     @fitness = 0
 
     @resultante.each_index do |linha|
@@ -169,8 +143,19 @@ class Cromossomo
         end
       end
 
-      if @resultante[linha] == @resultante[linha].sort
+      if @resultante[linha] == @estado_esperado[linha]
         @fitness += 1
+      end
+    end
+
+    #@fitness += numero_de_inversoes
+
+    0.upto (@tamanho-2) do |i|
+      par_movimentos = @genes[i..(i+1)]
+      if par_movimentos.include? 0 and par_movimentos.include? 3
+        @fitness -= 1
+      elsif par_movimentos.include? 1 and par_movimentos.include? 2
+        @fitness -= 1
       end
     end
   end
@@ -201,6 +186,9 @@ class Cromossomo
     # Forca copia de um "array de array", visando evitar que a
     #  variavel resultado seja um ponteiro para @jogo_usuario.
     resultado = Marshal.load(Marshal.dump(@jogo_usuario))
+    # Ira' contar o numero de pecas invertidas, visando tirar pontuacao de quem
+    #  possui muitos movimentos invalidos
+    numero_de_inversoes = 0
 
     @genes.each do |movimento|
       case movimento
@@ -209,6 +197,7 @@ class Cromossomo
             resultado[guia[:linha]][guia[:coluna]] = resultado[guia[:linha]][guia[:coluna]-1]
             resultado[guia[:linha]][guia[:coluna]-1] = 0
             guia[:coluna] = guia[:coluna]-1
+            numero_de_inversoes += 1
           end
 
         when 1 # cima
@@ -216,6 +205,7 @@ class Cromossomo
             resultado[guia[:linha]][guia[:coluna]] = resultado[guia[:linha]-1][guia[:coluna]]
             resultado[guia[:linha]-1][guia[:coluna]] = 0
             guia[:linha] = guia[:linha]-1
+            numero_de_inversoes += 1
           end
 
         when 2 # baixo
@@ -223,6 +213,7 @@ class Cromossomo
             resultado[guia[:linha]][guia[:coluna]] = resultado[guia[:linha]+1][guia[:coluna]]
             resultado[guia[:linha]+1][guia[:coluna]] = 0
             guia[:linha] = guia[:linha]+1
+            numero_de_inversoes += 1
           end
 
         when 3 # direita
@@ -230,11 +221,12 @@ class Cromossomo
             resultado[guia[:linha]][guia[:coluna]] = resultado[guia[:linha]][guia[:coluna]+1]
             resultado[guia[:linha]][guia[:coluna]+1] = 0
             guia[:coluna] = guia[:coluna]+1
+            numero_de_inversoes += 1
           end
       end
     end
 
-    resultado
+    return resultado, numero_de_inversoes
   end
 
   #
@@ -251,20 +243,4 @@ class Cromossomo
     end
   end
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

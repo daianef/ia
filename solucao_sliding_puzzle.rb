@@ -32,7 +32,7 @@ puts "#"*37 + "\n\n"
 # Seta a semente do gerador de numeros aleatorios.
 # Se omitido o parametro, sera' usada uma combinacao da
 # data, ID do processo e numero de sequencia.
-srand()
+#srand()
 
 ##### PRIMEIRA POPULACAO #####
 populacao_atual = Populacao.new(cli.numero_de_sorteios)
@@ -60,7 +60,7 @@ end
     individuo = Cromossomo.new(cli.tamanho_do_cromossomo, sp.jogo, sp.estado_esperado)
     individuo.alterar_probabilidade_de_mutacao(cli.probabilidade_de_mutacao)
     # Cruzamento entre pais
-    individuo.crossover(pai1.heranca_1.reverse, pai2.heranca_2.reverse)
+    individuo.crossover(pai1, pai2)
     # Testa e realiza a mutacao, se for o caso
     individuo.mutacao()
     # Alimenta a populacao
@@ -70,7 +70,7 @@ end
     individuo = Cromossomo.new(cli.tamanho_do_cromossomo, sp.jogo, sp.estado_esperado)
     individuo.alterar_probabilidade_de_mutacao(cli.probabilidade_de_mutacao)
     # Cruzamento entre pais (trocando herancas)
-    individuo.crossover(pai2.heranca_1.reverse, pai1.heranca_2.reverse)
+    individuo.crossover(pai2, pai1)
     # Testa e realiza a mutacao, se for o caso
     individuo.mutacao()
     # Alimenta a populacao

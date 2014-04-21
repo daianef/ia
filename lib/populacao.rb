@@ -33,6 +33,7 @@ class Populacao
     cromo = maior_fitness_absoluto()
 
     "#{cromo.fitness} #{cromo.resultante.inspect} #{cromo.genes.inspect}"
+    #"#{cromo.fitness}"
   end
 
   #
@@ -98,7 +99,12 @@ class Populacao
       ids[i-1] = rand(@cromossomos.size)
     end
 
-    [@cromossomos[ids[0]], @cromossomos[ids[1]], @cromossomos[ids[2]]]
+    sorteados = []
+    ids.each do |i|
+      sorteados << @cromossomos[i]
+    end
+
+    sorteados
   end
 
   #
@@ -113,3 +119,4 @@ class Populacao
     menor
   end
 end
+

@@ -5,14 +5,14 @@
 
 #
 # Classe que representa uma peca na solucao do jogo.
-# Cada Peca tem um valor (inteiro) e uma coordenada (linha, coluna).
+# Cada peca tem um valor (inteiro) e uma coordenada (linha, coluna).
 #
 class Peca
   # Permissao de leitura para valor da peca
   attr_accessor :id
 
   #
-  # Inicializacao de uma Peca com valor, linha e coluna.
+  # Inicializacao de uma peca com valor, linha e coluna.
   #
   def initialize(id, linha, coluna)
     @id = id.to_i
@@ -20,7 +20,7 @@ class Peca
   end
 
   #
-  # Retorna par de coordenadas da Peca.
+  # Retorna par de coordenadas da peca.
   #
   def coord
     "#{@coord[:linha]},#{@coord[:coluna]}"
@@ -58,6 +58,9 @@ class SlidingPuzzle
     @estado_esperado = obter_estado_esperado()
   end
 
+  #
+  # Exibicao do objeto como string.
+  #
   def to_s
     msg = "JOGO DO USUARIO: \n"
 
@@ -78,24 +81,34 @@ class SlidingPuzzle
 
   private
 
+  #
+  # Interpreta arquivo do usuario e extrai o jogo.
+  #
   def ler_jogo_do_usuario
     pecas = []
 
     File.readlines(@arquivo).each do |line|
-      next unless line.match(/\w+/)
+      next unless line.match(/\d+\s+\d+/)
 
-      pecas << line.split(" ")
+      pecas << line.split(/\s+/)
       pecas.last.map! {|peca| peca.to_i}
       @n ||= pecas.last.size
 
-      raise "Jogo invalido!" unless @n == pecas.last.size
+      msg_erro = "Jogo invalido! Ha numero inesperado de colunas na linha #{pecas.size}."
+      raise msg_erro unless @n == pecas.last.size
     end
 
-    raise "Jogo invalido!" unless pecas.first.size == pecas.size
+    raise "Jogo invalido! Jogo deve ser NxN." unless pecas.first.size == pecas.size
 
     pecas
   end
 
+  #
+  # Calcula posicoes esperadas das pecas para um
+  #  jogo solucionado.
+  # Assume sempre a peca guia (espaco vazio) em ultima
+  #  posicao da ultima linha.
+  #
   def obter_estado_esperado
     solucao = []
     peca_atual = 1
@@ -115,6 +128,4 @@ class SlidingPuzzle
     solucao_tmp
   end
 end
-
-
 
