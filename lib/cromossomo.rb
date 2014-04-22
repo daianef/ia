@@ -132,24 +132,29 @@ class Cromossomo
   #  do cromossomo.
   #
   def calcular_fitness
-    @resultante, numero_de_inversoes = matriz_resultante()
+    @resultante, movimentos_validos = matriz_resultante()
     @fitness = 0
 
     @resultante.each_index do |linha|
       @resultante[linha].each_index do |coluna|
         index = @resultante[linha][coluna]
+        # Ganha 1 ponto por peca no lugar correto
         if "#{linha},#{coluna}" == @estado_esperado[index].coord()
           @fitness += 1
         end
       end
 
+      # Ganha 1 ponto por linha correta
       if @resultante[linha] == @estado_esperado[linha]
         @fitness += 1
       end
     end
 
-    #@fitness += numero_de_inversoes
+    # Ganha pontos por movimentos validos
+    @fitness += movimentos_validos
 
+    # Tira 1 ponto da fitness a cada par de movimentos inutil:
+    # e.g. 0 3 (foi para esquerda e foi para direita - ou seja, voltou ao mesmo lugar)
     0.upto (@tamanho-2) do |i|
       par_movimentos = @genes[i..(i+1)]
       if par_movimentos.include? 0 and par_movimentos.include? 3
@@ -186,9 +191,9 @@ class Cromossomo
     # Forca copia de um "array de array", visando evitar que a
     #  variavel resultado seja um ponteiro para @jogo_usuario.
     resultado = Marshal.load(Marshal.dump(@jogo_usuario))
-    # Ira' contar o numero de pecas invertidas, visando tirar pontuacao de quem
-    #  possui muitos movimentos invalidos
-    numero_de_inversoes = 0
+    # Ira' contar o numero de pecas invertidas, visando contabilizar
+    #  movimentos validos
+    movimentos_validos = 0
 
     @genes.each do |movimento|
       case movimento
@@ -197,7 +202,7 @@ class Cromossomo
             resultado[guia[:linha]][guia[:coluna]] = resultado[guia[:linha]][guia[:coluna]-1]
             resultado[guia[:linha]][guia[:coluna]-1] = 0
             guia[:coluna] = guia[:coluna]-1
-            numero_de_inversoes += 1
+            movimentos_validos += 1
           end
 
         when 1 # cima
@@ -205,7 +210,7 @@ class Cromossomo
             resultado[guia[:linha]][guia[:coluna]] = resultado[guia[:linha]-1][guia[:coluna]]
             resultado[guia[:linha]-1][guia[:coluna]] = 0
             guia[:linha] = guia[:linha]-1
-            numero_de_inversoes += 1
+            movimentos_validos += 1
           end
 
         when 2 # baixo
@@ -213,7 +218,7 @@ class Cromossomo
             resultado[guia[:linha]][guia[:coluna]] = resultado[guia[:linha]+1][guia[:coluna]]
             resultado[guia[:linha]+1][guia[:coluna]] = 0
             guia[:linha] = guia[:linha]+1
-            numero_de_inversoes += 1
+            movimentos_validos += 1
           end
 
         when 3 # direita
@@ -221,12 +226,12 @@ class Cromossomo
             resultado[guia[:linha]][guia[:coluna]] = resultado[guia[:linha]][guia[:coluna]+1]
             resultado[guia[:linha]][guia[:coluna]+1] = 0
             guia[:coluna] = guia[:coluna]+1
-            numero_de_inversoes += 1
+            movimentos_validos += 1
           end
       end
     end
 
-    return resultado, numero_de_inversoes
+    return resultado, movimentos_validos
   end
 
   #
