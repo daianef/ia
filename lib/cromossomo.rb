@@ -2,7 +2,6 @@
 # Um cromossomo contem uma sequencia de passos da peca guia (espaco vazio).
 # Assim, cada gene e' um movimento.
 #
-
 class Cromossomo
   # Permissao de leitura para atributos
   attr_reader :fitness, :resultante, :genes
@@ -14,12 +13,12 @@ class Cromossomo
   #
   #
   def initialize(tamanho, atual, final)
-    raise "Tamanho deve ser igual ou maior que 4." if tamanho.to_i < 4
     raise "Parametro atual deve ser Array." unless atual.is_a? Array
     raise "Parametro final deve ser Array." unless final.is_a? Array
 
-    # Numero de genes
-    @tamanho = tamanho.to_i
+    # Numero de genes. Se nenhum valor tiver sido dado, assume que numero
+    #  de genes sera' igual ao dobro do numero de pecas.
+    @tamanho = (tamanho || atual.size*atual.size*2).to_i
     # Jogo fornecido pelo usuario
     @jogo_usuario = atual
     # Estado final esperado para as pecas
@@ -63,39 +62,15 @@ class Cromossomo
   end
 
   #
-  # Se numero de genes eh divisivel por 4, realiza um crossover que usa
-  #  uma especie de embaralhamento a partir de 4 partes:
-  #
-  #     PAI 1
-  # 1 2 3 0 1 2 3 0
-  #     --- ---
-  # parte_1 = [1, 2]
-  # parte_2 = [3, 0]
-  #
-  #     PAI 2
-  # 0 2 3 1 0 2 3 1
-  # ---         ---
-  # parte_3 = [3, 1]
-  # parte_4 = [0, 2]
-  #
-  # Resultado: 1 2 3 0 3 1 0 2
-  #
-  # --
-  #
-  # Se nao, realiza cruzamento simples.
+  # Realiza um cruzamento simples, mas reverte as sequencias de
+  #  genes de cada pai.
   #
   def crossover(pai1, pai2)
-    if @tamanho%4 == 0
-      parte_1 = pai1.genes[(@tamanho/2)..(@tamanho/2 + @tamanho/4 - 1)]
-      parte_2 = pai1.genes[(@tamanho/2 - @tamanho/4)..(@tamanho/2 - 1)]
-      parte_3 = pai2.genes[(@tamanho - @tamanho/4)..(@tamanho - 1)]
-      parte_4 = pai2.genes[0..(@tamanho/4 - 1)]
-
-      @genes = parte_1 + parte_2 + parte_3 + parte_4
-    else
-      @genes = pai1.genes[0..((@tamanho/2)-1)] + pai2.genes[(@tamanho/2)..(@tamanho-1)]
-    end
-
+    parte_1 = pai1.genes[0..((@tamanho/2)-1)].reverse
+    parte_2 = pai2.genes[(@tamanho/2)..(@tamanho-1)].reverse
+    
+    @genes = parte_1 + parte_2
+  
     calcular_fitness()
   end
 
@@ -132,7 +107,7 @@ class Cromossomo
   #  do cromossomo.
   #
   def calcular_fitness
-    @resultante, movimentos_validos = matriz_resultante()
+    @resultante = matriz_resultante()
     @fitness = 0
 
     @resultante.each_index do |linha|
@@ -147,20 +122,6 @@ class Cromossomo
       # Ganha 1 ponto por linha correta
       if @resultante[linha] == @estado_esperado[linha]
         @fitness += 1
-      end
-    end
-
-    # Ganha pontos por movimentos validos
-    @fitness += movimentos_validos
-
-    # Tira 1 ponto da fitness a cada par de movimentos inutil:
-    # e.g. 0 3 (foi para esquerda e foi para direita - ou seja, voltou ao mesmo lugar)
-    0.upto (@tamanho-2) do |i|
-      par_movimentos = @genes[i..(i+1)]
-      if par_movimentos.include? 0 and par_movimentos.include? 3
-        @fitness -= 1
-      elsif par_movimentos.include? 1 and par_movimentos.include? 2
-        @fitness -= 1
       end
     end
   end
@@ -191,9 +152,6 @@ class Cromossomo
     # Forca copia de um "array de array", visando evitar que a
     #  variavel resultado seja um ponteiro para @jogo_usuario.
     resultado = Marshal.load(Marshal.dump(@jogo_usuario))
-    # Ira' contar o numero de pecas invertidas, visando contabilizar
-    #  movimentos validos
-    movimentos_validos = 0
 
     @genes.each do |movimento|
       case movimento
@@ -202,7 +160,6 @@ class Cromossomo
             resultado[guia[:linha]][guia[:coluna]] = resultado[guia[:linha]][guia[:coluna]-1]
             resultado[guia[:linha]][guia[:coluna]-1] = 0
             guia[:coluna] = guia[:coluna]-1
-            movimentos_validos += 1
           end
 
         when 1 # cima
@@ -210,7 +167,6 @@ class Cromossomo
             resultado[guia[:linha]][guia[:coluna]] = resultado[guia[:linha]-1][guia[:coluna]]
             resultado[guia[:linha]-1][guia[:coluna]] = 0
             guia[:linha] = guia[:linha]-1
-            movimentos_validos += 1
           end
 
         when 2 # baixo
@@ -218,7 +174,6 @@ class Cromossomo
             resultado[guia[:linha]][guia[:coluna]] = resultado[guia[:linha]+1][guia[:coluna]]
             resultado[guia[:linha]+1][guia[:coluna]] = 0
             guia[:linha] = guia[:linha]+1
-            movimentos_validos += 1
           end
 
         when 3 # direita
@@ -226,12 +181,11 @@ class Cromossomo
             resultado[guia[:linha]][guia[:coluna]] = resultado[guia[:linha]][guia[:coluna]+1]
             resultado[guia[:linha]][guia[:coluna]+1] = 0
             guia[:coluna] = guia[:coluna]+1
-            movimentos_validos += 1
           end
       end
     end
 
-    return resultado, movimentos_validos
+    resultado
   end
 
   #

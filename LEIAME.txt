@@ -1,0 +1,116 @@
+------------------------------------------------------------------------------------
+-------------------- INTELIGENCIA ARTIFICIAL APLICADA ------------------------------
+------------------------------------------------------------------------------------
+--																				  --
+-- Trabalho 1: Algoritmos genéticos para solucão de Sliding Puzzle NxN			  --
+--																				  --
+-- Alunas: Daiane Fraga, Márcia Federizzi										  --
+--																				  --
+-- Implementação feita em Ruby 1.8.7, executável em Linux Debian-based e Windows. --
+--																				  --
+------------------------------------------------------------------------------------
+
+$$$$$$$$$$$$$$$$$$ SUMÁRIO $$$$$$$$$$$$$$$$$$
+
+1. Instalação do Ruby
+ 1.1 Windows
+ 1.2 Linux Debian-based
+
+2. Referências da linguagem
+
+3. Execução do programa
+ 3.1 No Windows
+ 3.2 No Linux Debian-based
+
+4. Estrutura de diretórios
+
+
+$$$$$$$$$$$$$$$$$$ 1. INSTALAÇÃO DO RUBY $$$$$$$$$$$$$$$$$$
+
+#### 1.1 Windows ####
+
+* Testado no Windows 7 Professional SP1
+
+Baixar executável: http://dl.bintray.com/oneclick/rubyinstaller/rubyinstaller-1.8.7-p374.exe?direct
+
+Proceder com instalação conforme orientação do próprio instalador.
+
+
+#### 1.2 Linux Debian-based ####
+
+* Testado no Ubuntu 10.04
+
+Durante o processo de instalação, não usar 'sudo', pois ele irá associar o ruby e suas bibliotecas ao usuário root.
+
+Para instalar o gerenciador de versões do Ruby, execute os comandos na ordem:
+# \curl -sSL https://get.rvm.io | bash -s stable --ruby --auto-dotfiles
+# echo "source $HOME/.rvm/scripts/rvm" >> ~/.bashrc
+# source ~/.bashrc
+# rvm -v --> deve exibir a versão instalada do RVM
+
+--> Se necessário, a referência do RVM está em https://rvm.io/.
+
+Para instalar o ruby 1.8.7:
+# rvm install 1.8.7
+
+Para tornar essa versão a default:
+# rvm alias create default 1.8.7
+
+Para listar as versões:
+# rvm list
+
+Para executar (interpretar) um programa ruby, basta:
+# ruby <nome_arquivo.rb>
+
+
+$$$$$$$$$$$$$$$$$$ 2. REFERÊNCIAS DA LINGUAGEM $$$$$$$$$$$$$$$$$$
+
+Documentação da API:
+http://www.ruby-doc.org/core-1.8.7/
+
+Algumas referências sobre a linguagem:
+http://www.codecademy.com/tracks/ruby?curriculum_id=5059f8619189a5000201fbcb
+https://rubymonk.com/
+http://www.java2s.com/Code/Ruby/CatalogRuby.htm
+http://mislav.uniqpath.com/poignant-guide/book/
+
+Útil para quem já conhece outra linguagem de scripting (como o Python, por exemplo):
+http://hyperpolyglot.org/scripting
+
+
+$$$$$$$$$$$$$$$$$$ 3. EXECUÇÃO DO PROGRAMA $$$$$$$$$$$$$$$$$$
+
+#### 3.1 No Windows ####
+
+Abrir prompt, e acessar diretório com o código.
+
+Digitar: ruby solucao_sliding_puzzle.rb -h
+
+A opção '-h' exibirá todas as opções disponíveis.
+
+O uso padrão é: ruby solucao_sliding_puzzle.rb -j arquivo_com_jogo
+
+
+#### 3.2 Linux Debian-based ####
+
+Abrir terminal, e acessar diretório com o código.
+
+Digitar: ruby solucao_sliding_puzzle.rb -h
+
+A opção '-h' exibirá todas as opções disponíveis.
+
+O uso padrão é: ruby solucao_sliding_puzzle.rb -j arquivo_com_jogo
+
+
+$$$$$$$$$$$$$$$$$$ 4. ESTRUTURA DE DIRETÓRIOS $$$$$$$$$$$$$$$$$$
+
+Raiz:
+ - contém este LEIAME e o script responsável por executar o trabalho em si.
+
+lib:
+ - onde ficam todas as classes de suporte desenvolvidas para a implementação do trabalho.
+
+testes:
+ - mantém arquivos-texto com exemplos de jogos.
+
+

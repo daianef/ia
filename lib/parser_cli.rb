@@ -38,7 +38,7 @@ class ParserCLI
   #  fornecido.
   #
   def tamanho_do_cromossomo
-    @opcoes[:cromo] || 8
+    @opcoes[:cromo]
   end
 
   #
@@ -67,7 +67,22 @@ class ParserCLI
   def numero_de_sorteios
     @opcoes[:sorteios] || 3
   end
+  
+  #
+  # Informa se e' desejado imprimir o resultado final da movimentacao
+  #  das pecas, ao lado do valor da fitness.
+  #
+  def imprimir_resultado?
+    @opcoes[:resultado]
+  end
 
+  #
+  # Informa se e' desejado desabilitar o elitismo.
+  #
+  def remover_elitismo?
+    @opcoes[:sem_elitismo]
+  end
+  
   private
 
   #
@@ -76,9 +91,9 @@ class ParserCLI
   #
   def parser
     opcoes = OptionParser.new do |ops|
-      ops.banner = "Uso: ruby solucao_sliding_puzzle.rb -j arquivo_com_jogo.txt [opcoes]"
+      ops.banner = "Uso: ruby solucao_sliding_puzzle.rb -j arquivo_com_jogo [opcoes]"
 
-      ops.on("-j arquivo_com_jogo.txt", "Arquivo (txt) com a descricao do jogo.") do |arquivo|
+      ops.on("-j arquivo_com_jogo", "(Parametro obrigatorio) Arquivo texto com a descricao do jogo.") do |arquivo|
         @opcoes[:arquivo] = arquivo
       end
 
@@ -104,6 +119,14 @@ class ParserCLI
 
       ops.on("-s numero_de_sorteios", "Numero de sorteios na escolha dos pais.") do |sorteios|
         @opcoes[:sorteios] = sorteios.to_i
+      end
+      
+      ops.on("--resultado", "Imprime posicao final das pecas ao lado do valor da fitness.") do |imprimir|
+        @opcoes[:resultado] = true
+      end
+      
+      ops.on("--sem_elitismo", "Nao realiza o elitismo nas populacoes.") do |elitismo|
+        @opcoes[:sem_elitismo] = true
       end
 
       ops.on_tail("-h", "--help", "Mostra esta mensagem.") do

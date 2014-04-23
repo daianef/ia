@@ -6,8 +6,8 @@ class Populacao
   # Construtor da classe. Inicia com populacao vazia e
   #  com numero de sorteios para escolha dos pais.
   #
-  def initialize(numero_de_sorteios=3)
-    @numero_de_sorteios = numero_de_sorteios
+  def initialize(opcoes)
+    @opcoes = opcoes
     @cromossomos = []
   end
 
@@ -15,25 +15,13 @@ class Populacao
   # Exibicao do objeto como string.
   #
   def to_s
-=begin    str = "\n\n"
-    @cromossomos.each do |cromo|
-      str += "--\n"
-      str += cromo.object_id.to_s + "\n"
-      str += cromo.matriz_resultado.inspect + "\n"
-      str += cromo.fitness.to_s + "\n"
-    end
-
-    str += "\n\nMAIOR FITNESS\n"
-    cromo1 = maior_fitness_absoluto()
-    str += cromo1.object_id.to_s + "\n"
-    str += "#{cromo1.matriz_resultado.inspect}\n"
-    str += "#{cromo1.fitness} \n"
-=end
-
     cromo = maior_fitness_absoluto()
 
-    "#{cromo.fitness} #{cromo.resultante.inspect} #{cromo.genes.inspect}"
-    #"#{cromo.fitness}"
+    if @opcoes.imprimir_resultado?
+      "#{cromo.fitness} #{cromo.resultante.inspect}"
+    else
+      "#{cromo.fitness}"
+    end
   end
 
   #
@@ -95,7 +83,7 @@ class Populacao
   #
   def sortear_cromossomos
     ids = []
-    1.upto @numero_de_sorteios do |i|
+    1.upto @opcoes.numero_de_sorteios do |i|
       ids[i-1] = rand(@cromossomos.size)
     end
 
