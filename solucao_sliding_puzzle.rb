@@ -23,11 +23,11 @@ cli = ParserCLI.new
 # Interpreta o jogo do usuario
 sp = SlidingPuzzle.new(cli.arquivo)
 
-puts "#"*10 + " JOGO DO USUARIO " + "#"*10
-sp.jogo.each do |linha|
-  puts linha.inspect
-end
-puts "#"*37 + "\n\n"
+#puts "#"*10 + " JOGO DO USUARIO " + "#"*10
+#sp.jogo.each do |linha|
+#  puts linha.inspect
+#end
+#puts "#"*37 + "\n\n"
 
 # Seta a semente do gerador de numeros aleatorios.
 # Se omitido o parametro, sera' usada uma combinacao da

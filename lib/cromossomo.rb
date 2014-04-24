@@ -66,8 +66,11 @@ class Cromossomo
   #  genes de cada pai.
   #
   def crossover(pai1, pai2)
-    parte_1 = pai1.genes[0..((@tamanho/2)-1)].reverse
-    parte_2 = pai2.genes[(@tamanho/2)..(@tamanho-1)].reverse
+#    parte_1 = pai1.genes[0..((@tamanho/2)-1)].reverse
+#    parte_2 = pai2.genes[(@tamanho/2)..(@tamanho-1)].reverse
+    parte_1 = pai1.genes[0..((@tamanho/2)-1)]
+    parte_2 = pai2.genes[(@tamanho/2)..(@tamanho-1)]
+
     
     @genes = parte_1 + parte_2
   
@@ -85,9 +88,12 @@ class Cromossomo
     raise "O cromossomo deve possuir genes." if @genes.empty?
 
     if deve_mutar?
-      pos = sortear_posicao()
-      @genes[pos] = 3 - @genes[pos]
-      calcular_fitness()
+		numero_mutacoes = (@tamanho*10)/100
+		1.upto numero_mutacoes do |i|
+			pos = sortear_posicao()
+			@genes[pos] = 3 - @genes[pos]			
+		end
+		calcular_fitness()
     end
   end
 
@@ -116,12 +122,15 @@ class Cromossomo
         # Ganha 1 ponto por peca no lugar correto
         if "#{linha},#{coluna}" == @estado_esperado[index].coord()
           @fitness += 1
+        end	    
+	    # Ganha 1 ponto por coluna correta
+	    if @resultante[coluna] == @estado_esperado[coluna]
+		  @fitness += 1
+	    end        	    
+	    # Ganha 1 ponto por linha correta
+        if @resultante[linha] == @estado_esperado[linha]
+          @fitness += 1
         end
-      end
-
-      # Ganha 1 ponto por linha correta
-      if @resultante[linha] == @estado_esperado[linha]
-        @fitness += 1
       end
     end
   end
