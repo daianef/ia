@@ -1,3 +1,15 @@
+#####################################################################
+#
+# INTELIGENCIA ARTIFICIAL APLICADA
+#
+# TRABALHO 1: Resolvendo o Sliding Puzzle com algoritmos geneticos
+#
+# Alunas: Daiane Fraga, Marcia Federizzi
+#
+# 2014/1
+#
+#####################################################################
+
 #
 # Classe para representar uma populacao de cromossomos.
 #
@@ -15,13 +27,19 @@ class Populacao
   # Exibicao do objeto como string.
   #
   def to_s
-    cromo = maior_fitness_absoluto()
+    cromo = melhor_fitness_absoluto()
 
     if @opcoes.imprimir_resultado?
-      "#{cromo.fitness} #{cromo.resultante.inspect}"
+      str = "#{cromo.fitness} #{cromo.resultante.inspect} "
+# Descomentar para exibir fitness de todos os cromossomos
+#      @cromossomos.each do |cromo1|
+#        str += "#{cromo1.fitness} "
+#      end
     else
-      "#{cromo.fitness}"
+      str = "#{cromo.fitness}"
     end
+    
+    str
   end
 
   #
@@ -39,8 +57,8 @@ class Populacao
     pais = []
     1.upto @cromossomos.size/2 do |i|
       pais[i-1] = []
-      pais[i-1][0] = maior_fitness(sortear_cromossomos())
-      pais[i-1][1] = maior_fitness(sortear_cromossomos())
+      pais[i-1][0] = melhor_fitness(sortear_cromossomos())
+      pais[i-1][1] = melhor_fitness(sortear_cromossomos())
     end
 
     pais
@@ -49,8 +67,8 @@ class Populacao
   #
   # Retorna o cromossomo de maior fitness dentro da populacao.
   #
-  def maior_fitness_absoluto
-    maior_fitness(@cromossomos)
+  def melhor_fitness_absoluto
+    melhor_fitness(@cromossomos)
   end
 
   #
@@ -59,7 +77,7 @@ class Populacao
   #  populacao atual.
   #
   def elitismo(melhor_pai)
-    index = @cromossomos.index(menor_fitness_absoluto)
+    index = @cromossomos.index(pior_fitness_absoluto)
     @cromossomos[index] = melhor_pai
   end
 
@@ -67,15 +85,15 @@ class Populacao
   private
 
   #
-  # Retorna o cromossomo de maior fitness dentro da lista fornecida.
+  # Retorna o cromossomo de melhor fitness dentro da lista fornecida.
   #
-  def maior_fitness(elementos)
-    maior = elementos.first
+  def melhor_fitness(elementos)
+    melhor = elementos.first
     elementos.each do |e|
-      maior = e if e.fitness > maior.fitness
+      melhor = e if e.fitness < melhor.fitness
     end
 
-    maior
+    melhor
   end
 
   #
@@ -96,15 +114,15 @@ class Populacao
   end
 
   #
-  # Retorna o cromossomo de menor fitness dentro da populacao.
+  # Retorna o cromossomo com menor fitness dentro da populacao.
   #
-  def menor_fitness_absoluto
-    menor = @cromossomos.first
+  def pior_fitness_absoluto
+    pior = @cromossomos.first
     @cromossomos.each do |e|
-      menor = e if e.fitness < menor.fitness
+      pior = e if e.fitness > pior.fitness
     end
 
-    menor
+    pior
   end
 end
 

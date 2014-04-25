@@ -1,10 +1,22 @@
+#####################################################################
+#
+# INTELIGENCIA ARTIFICIAL APLICADA
+#
+# TRABALHO 1: Resolvendo o Sliding Puzzle com algoritmos geneticos
+#
+# Alunas: Daiane Fraga, Marcia Federizzi
+#
+# 2014/1
+#
+#####################################################################
+
 #
 # Um cromossomo contem uma sequencia de passos da peca guia (espaco vazio).
 # Assim, cada gene e' um movimento.
 #
 class Cromossomo
   # Permissao de leitura para atributos
-  attr_reader :fitness, :resultante, :genes
+  attr_reader :fitness, :resultante, :genes, :pontos_coluna, :pontos_linha
 
   #
   # Construtor da classe.
@@ -62,18 +74,14 @@ class Cromossomo
   end
 
   #
-  # Realiza um cruzamento simples, mas reverte as sequencias de
-  #  genes de cada pai.
+  # Realiza um cruzamento simples.
   #
   def crossover(pai1, pai2)
-#    parte_1 = pai1.genes[0..((@tamanho/2)-1)].reverse
-#    parte_2 = pai2.genes[(@tamanho/2)..(@tamanho-1)].reverse
     parte_1 = pai1.genes[0..((@tamanho/2)-1)]
     parte_2 = pai2.genes[(@tamanho/2)..(@tamanho-1)]
 
-    
     @genes = parte_1 + parte_2
-  
+
     calcular_fitness()
   end
 
@@ -88,12 +96,9 @@ class Cromossomo
     raise "O cromossomo deve possuir genes." if @genes.empty?
 
     if deve_mutar?
-		numero_mutacoes = (@tamanho*10)/100
-		1.upto numero_mutacoes do |i|
-			pos = sortear_posicao()
-			@genes[pos] = 3 - @genes[pos]			
-		end
-		calcular_fitness()
+      pos = sortear_posicao()
+      @genes[pos] = 3 - @genes[pos]
+      calcular_fitness()
     end
   end
 
@@ -118,19 +123,39 @@ class Cromossomo
 
     @resultante.each_index do |linha|
       @resultante[linha].each_index do |coluna|
+        
+        ### FITNESS UTILIZADA ###
+        # Utiliza a distancia de Manhattan de cada peca como fitness. 
+        # Assim, quanto menor a fitness, melhor ela eh.
+        # Significa que pecas jah estao no lugar certo ou perto do seu lugar.
         index = @resultante[linha][coluna]
+        distancia_x = linha - @estado_esperado[index].coord()[0] 
+        distancia_y = coluna - @estado_esperado[index].coord()[1]
+        @fitness += distancia_x.abs + distancia_y.abs
+        
+=begin  DEMAIS TENTATIVAS DE FITNESS
+
         # Ganha 1 ponto por peca no lugar correto
-        if "#{linha},#{coluna}" == @estado_esperado[index].coord()
-          @fitness += 1
-        end	    
-	    # Ganha 1 ponto por coluna correta
-	    if @resultante[coluna] == @estado_esperado[coluna]
-		  @fitness += 1
-	    end        	    
-	    # Ganha 1 ponto por linha correta
-        if @resultante[linha] == @estado_esperado[linha]
+        if "#{linha},#{coluna}" == @estado_esperado[index].coord().join(",")
           @fitness += 1
         end
+
+        if ((linha-@estado_esperado[index].coord()[0]).abs + (coluna-@estado_esperado[index].coord()[1]).abs) <= 1
+          @fitness += 3
+        elsif ((linha-@estado_esperado[index].coord()[0]).abs + (coluna-@estado_esperado[index].coord()[1]).abs) <= 2
+          @fitness += 2
+        elsif ((linha-@estado_esperado[index].coord()[0]).abs + (coluna-@estado_esperado[index].coord()[1]).abs) <= 3
+          @fitness += 1
+        end
+
+        if linha ==  @estado_esperado[index].coord()[0]
+          @fitness += 1
+        end
+
+        if coluna ==  @estado_esperado[index].coord()[1]
+          @fitness += 1
+        end
+=end
       end
     end
   end

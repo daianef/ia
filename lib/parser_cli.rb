@@ -1,3 +1,15 @@
+#####################################################################
+#
+# INTELIGENCIA ARTIFICIAL APLICADA
+#
+# TRABALHO 1: Resolvendo o Sliding Puzzle com algoritmos geneticos
+#
+# Alunas: Daiane Fraga, Marcia Federizzi
+#
+# 2014/1
+#
+#####################################################################
+
 require 'optparse'
 
 #

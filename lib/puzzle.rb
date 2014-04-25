@@ -1,3 +1,15 @@
+#####################################################################
+#
+# INTELIGENCIA ARTIFICIAL APLICADA
+#
+# TRABALHO 1: Resolvendo o Sliding Puzzle com algoritmos geneticos
+#
+# Alunas: Daiane Fraga, Marcia Federizzi
+#
+# 2014/1
+#
+#####################################################################
+
 #
 # Classes que auxiliam na representacao e tratamento do
 #  Sliding Puzzle.
@@ -23,7 +35,7 @@ class Peca
   # Retorna par de coordenadas da peca.
   #
   def coord
-    "#{@coord[:linha]},#{@coord[:coluna]}"
+    [@coord[:linha] , @coord[:coluna]]
   end
 
   #
@@ -120,9 +132,9 @@ class SlidingPuzzle
       end
     end
 
+    # Coloca a peca guia como primeira do array, mas com coordenadas de ultima
     solucao_tmp = [solucao.last] + solucao
     solucao_tmp.pop
-
     solucao_tmp.first.id = 0
 
     solucao_tmp
