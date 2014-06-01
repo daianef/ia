@@ -1,0 +1,30 @@
+for input vector:
+1.000000  1.000000  
+output vector is:
+0.561335  
+----------------------
+for input vector:
+0.000000  0.000000  
+output vector is:
+0.550849  
+----------------------
+for input vector:
+0.000000  0.000000  
+output vector is:
+0.550849  
+----------------------
+for input vector:
+1.000000  0.000000  
+output vector is:
+0.588823  
+----------------------
+for input vector:
+1.000000  0.000000  
+output vector is:
+0.588823  
+----------------------
+for input vector:
+1.000000  1.000000  
+output vector is:
+0.561335  
+----------------------
