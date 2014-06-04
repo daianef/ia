@@ -5,80 +5,71 @@
 #include <iostream>
 #include <cmath>
 
-#define TRAINING_FILE	"training.dat"
-#define WEIGHTS_FILE "weights.dat"
-#define OUTPUT_FILE	"output.dat"
-#define TEST_FILE	"test.dat"
+#define TRAINING_FILE   "training.dat"
+#define WEIGHTS_FILE    "weights.dat"
+#define OUTPUT_FILE	    "output.dat"
+#define TEST_FILE	    "test.dat"
 
 using namespace std;
 
-int main()
-{
+int main() {
 
-float error_tolerance=0.1;
-float total_error=0.0;
-float avg_error_per_cycle=0.0;
-float error_last_cycle=0.0;
-float avgerr_per_pattern=0.0; // for the latest cycle
-float error_last_pattern=0.0;
-float learning_parameter=0.02;
-unsigned temp, startup;
-long int vectors_in_buffer;
-long int max_cycles;
-long int patterns_per_cycle=0;
+    float error_tolerance=0.1;
+    float total_error=0.0;
+    float avg_error_per_cycle=0.0;
+    float error_last_cycle=0.0;
+    float avgerr_per_pattern=0.0; // for the latest cycle
+    float error_last_pattern=0.0;
+    float learning_parameter=0.02;
+    unsigned temp, startup;
+    long int vectors_in_buffer;
+    long int max_cycles;
+    long int patterns_per_cycle=0;
+    long int total_cycles, total_patterns;
+    int i;
 
-long int total_cycles, total_patterns;
-int i;
+    // create a network object
+    network backp;
 
+    FILE * training_file_ptr, * weights_file_ptr, * output_file_ptr;
+    FILE * test_file_ptr, * data_file_ptr;
 
-// create a network object
-network backp;
-
-
-FILE * training_file_ptr, * weights_file_ptr, * output_file_ptr;
-FILE * test_file_ptr, * data_file_ptr;
-
-// open output file for writing
-if ((output_file_ptr=fopen(OUTPUT_FILE,"w"))==NULL)
-		{
+    // open output file for writing
+    if ((output_file_ptr=fopen(OUTPUT_FILE, "w")) == NULL) {
 		cout << "problem opening output file\n";
 		exit(1);
-		}
-
-// enter the training mode : 1=training on     0=training off
-cout << "---------------------------------------------------\n";
-cout << " C++ Neural Networks and Fuzzy Logic \n";
-cout << " 	Backpropagation simulator \n";
-cout << "		version 1 \n";
-cout << "---------------------------------------------------\n";
-cout << "Please enter 1 for TRAINING on, or 0 for off: \n\n";
-cout << "Use training to change weights according to your\n";
-cout << "expected outputs. Your training.dat file should contain\n";
-cout << "a set of inputs and expected outputs. The number of\n";
-cout << "inputs determines the size of the first (input) layer\n";
-cout << "while the number of outputs determines the size of the\n";
-cout << "last (output) layer :\n\n";
-
-cin >> temp;
-backp.set_training(temp);
-
-if (backp.get_training_value() == 1)
-	{
-	cout << "--> Training mode is *ON*. weights will be saved\n";
-	cout << "in the file weights.dat at the end of the\n";
-	cout << "current set of input (training) data\n";
-	}
-else
-	{
-	cout << "--> Training mode is *OFF*. weights will be loaded\n";
-	cout << "from the file weights.dat and the current\n";
-	cout << "(test) data set will be used. For the test\n";
-	cout << "data set, the test.dat file should contain\n";
-	cout << "only inputs, and no expected outputs.\n";
 	}
 
-if (backp.get_training_value()==1)
-	{
+    // enter the training mode : 1=training on, 0=training off
+    cout << "---------------------------------------------------    \n";
+    cout << "        C++ Neural Networks and Fuzzy Logic            \n";
+    cout << " 	          Backpropagation simulator                 \n";
+    cout << "		             version 1                          \n";
+    cout << "---------------------------------------------------    \n";
+    cout << "Please enter 1 for TRAINING on, or 0 for off:          \n\n";
+    cout << "Use training to change weights according to your       \n";
+    cout << "expected outputs. Your training.dat file should contain\n";
+    cout << "a set of inputs and expected outputs. The number of    \n";
+    cout << "inputs determines the size of the first (input) layer  \n";
+    cout << "while the number of outputs determines the size of the \n";
+    cout << "last (output) layer :                                  \n\n";
+
+    cin >> temp;
+    backp.set_training(temp);
+
+    if (backp.get_training_value() == 1) {
+        cout << "--> Training mode is *ON*. weights will be saved\n";
+        cout << "in the file weights.dat at the end of the\n";
+        cout << "current set of input (training) data\n";
+	} else {
+        cout << "--> Training mode is *OFF*. weights will be loaded\n";
+        cout << "from the file weights.dat and the current\n";
+        cout << "(test) data set will be used. For the test\n";
+        cout << "data set, the test.dat file should contain\n";
+        cout << "only inputs, and no expected outputs.\n";
+	}
+
+    if (backp.get_training_value() == 1) {
 	// -----------------------------------------
 	// 	Read in values for the error_tolerance,
 	//	and the learning_parameter
