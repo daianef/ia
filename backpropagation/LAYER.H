@@ -16,10 +16,11 @@ class layer {
         float *inputs; 	// pointer to array of inputs, which
                         // are outputs of some other layer
         //friend class Singleton< Tableau >;
+        //uma classe friend pode acessar metodos protected e private
         friend class network;
 
     public:
-
+    //virtual forca classes herdeiras a implementarem o metodo (template)
 	virtual void calc_out()=0;
 };
 
